@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RestreamA11y</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Skip link: first focusable element for screen-reader / keyboard users -->
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- Polite live region for status announcements (channel toggled, connected, etc.) -->
+  <div id="liveStatus" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+  <!-- Assertive region for errors -->
+  <div id="liveAlert" class="visually-hidden" role="alert" aria-atomic="true"></div>
+
+  <header class="app-header">
+    <h1>RestreamA11y</h1>
+    <p id="connState" class="conn-state" role="status">Not connected</p>
+  </header>
+
+  <!-- Tablist navigation. Arrow keys move between tabs; Enter/Space activates. -->
+  <nav aria-label="Main sections">
+    <div role="tablist" aria-label="Main sections" id="tablist">
+      <button role="tab" id="tab-dashboard" aria-controls="panel-dashboard" aria-selected="true" tabindex="0">
+        <span class="tabnum">1</span> Dashboard
+      </button>
+      <button role="tab" id="tab-channels" aria-controls="panel-channels" aria-selected="false" tabindex="-1">
+        <span class="tabnum">2</span> Channels
+      </button>
+      <button role="tab" id="tab-title" aria-controls="panel-title" aria-selected="false" tabindex="-1">
+        <span class="tabnum">3</span> Title &amp; Info
+      </button>
+      <button role="tab" id="tab-chat" aria-controls="panel-chat" aria-selected="false" tabindex="-1">
+        <span class="tabnum">4</span> Chat
+      </button>
+      <button role="tab" id="tab-tts" aria-controls="panel-tts" aria-selected="false" tabindex="-1">
+        <span class="tabnum">5</span> Voice / TTS
+      </button>
+      <button role="tab" id="tab-settings" aria-controls="panel-settings" aria-selected="false" tabindex="-1">
+        <span class="tabnum">6</span> Settings
+      </button>
+    </div>
+  </nav>
+
+  <main id="main" tabindex="-1">
+
+    <!-- DASHBOARD ----------------------------------------------------------->
+    <section role="tabpanel" id="panel-dashboard" aria-labelledby="tab-dashboard" tabindex="0">
+      <h2>Dashboard</h2>
+      <div class="card">
+        <h3>Live status</h3>
+        <p id="liveIndicator" class="big-status" role="status">Status unknown</p>
+        <button id="refreshStatus" class="btn">Refresh status <kbd>R</kbd></button>
+      </div>
+      <div class="card">
+        <h3>Account</h3>
+        <p id="profileInfo">Connect in Settings to load your profile.</p>
+      </div>
+      <div class="card">
+        <h3>Stream key &amp; server</h3>
+        <button id="loadKey" class="btn">Show stream key</button>
+        <dl id="keyInfo" class="kv"></dl>
+      </div>
+    </section>
+
+    <!-- CHANNELS ------------------------------------------------------------>
+    <section role="tabpanel" id="panel-channels" aria-labelledby="tab-channels" tabindex="0" hidden>
+      <h2>Channels</h2>
+      <p class="hint">Toggle each destination on or off. Use <kbd>Space</kbd> on a switch to flip it.</p>
+      <button id="reloadChannels" class="btn">Reload channels</button>
+      <ul id="channelList" class="channel-list" aria-label="Your channels"></ul>
+    </section>
+
+    <!-- TITLE & INFO -------------------------------------------------------->
+    <section role="tabpanel" id="panel-title" aria-labelledby="tab-title" tabindex="0" hidden>
+      <h2>Title &amp; Info</h2>
+      <form id="titleForm">
+        <div class="field">
+          <label for="streamTitle">Stream title</label>
+          <input type="text" id="streamTitle" autocomplete="off" maxlength="120" />
+        </div>
+        <div class="field">
+          <label for="streamDesc">Description</label>
+          <textarea id="streamDesc" rows="4"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Update title &amp; description</button>
+      </form>
+      <p id="titleSaveState" role="status" class="save-state"></p>
+    </section>
+
+    <!-- CHAT ---------------------------------------------------------------->
+    <section role="tabpanel" id="panel-chat" aria-labelledby="tab-chat" tabindex="0" hidden>
+      <h2>Live chat</h2>
+      <div class="chat-controls">
+        <button id="connectChat" class="btn btn-primary">Connect chat</button>
+        <button id="disconnectChat" class="btn" disabled>Disconnect</button>
+        <label class="inline-check">
+          <input type="checkbox" id="ttsChatToggle" checked />
+          Read new messages aloud
+        </label>
+        <button id="stopSpeaking" class="btn">Stop speaking <kbd>Esc</kbd></button>
+        <button id="testChat" class="btn">Test announcement</button>
+      </div>
+      <!-- Chat log: live region so each new message is announced. -->
+      <div id="chatLog" class="chat-log" role="log" aria-live="polite" aria-label="Chat messages" tabindex="0"></div>
+    </section>
+
+    <!-- TTS / VOICE --------------------------------------------------------->
+    <section role="tabpanel" id="panel-tts" aria-labelledby="tab-tts" tabindex="0" hidden>
+      <h2>Voice / TTS</h2>
+      <div class="field">
+        <label for="engineSelect">Engine</label>
+        <select id="engineSelect">
+          <option value="system">System voices (offline)</option>
+          <option value="azure">Azure Neural — real Andrew (needs key)</option>
+        </select>
+        <p class="hint" id="engineHint"></p>
+      </div>
+      <div class="field">
+        <label for="voiceSelect">Voice</label>
+        <select id="voiceSelect"></select>
+        <p class="hint" id="voiceHint">Natural / neural voices are grouped at the top when available.</p>
+        <button id="reloadAzureVoices" class="btn" type="button" hidden>Reload Azure voices</button>
+      </div>
+      <div class="field">
+        <label for="rate">Rate <output id="rateOut">1.0</output></label>
+        <input type="range" id="rate" min="0.5" max="2" step="0.05" value="1" />
+      </div>
+      <div class="field">
+        <label for="pitch">Pitch <output id="pitchOut">1.0</output></label>
+        <input type="range" id="pitch" min="0" max="2" step="0.05" value="1" />
+      </div>
+      <div class="field">
+        <label for="volume">Volume <output id="volumeOut">100%</output></label>
+        <input type="range" id="volume" min="0" max="1" step="0.05" value="1" />
+      </div>
+      <div class="field">
+        <label class="inline-check">
+          <input type="checkbox" id="speakAuthor" checked />
+          Announce the sender's name before each message
+        </label>
+      </div>
+      <button id="testVoice" class="btn btn-primary">Test voice</button>
+    </section>
+
+    <!-- SETTINGS ------------------------------------------------------------>
+    <section role="tabpanel" id="panel-settings" aria-labelledby="tab-settings" tabindex="0" hidden>
+      <h2>Settings</h2>
+      <div class="card">
+        <h3>Restream connection</h3>
+        <p class="hint">Get these from your Restream developer app. The redirect URI to
+          register is <code id="redirectUriDisplay">http://localhost:53682/callback</code>.</p>
+        <form id="credForm">
+          <div class="field">
+            <label for="clientId">Client ID</label>
+            <input type="text" id="clientId" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="clientSecret">Client Secret</label>
+            <input type="password" id="clientSecret" autocomplete="off"
+                   placeholder="(stored encrypted; leave blank to keep existing)" />
+          </div>
+          <button type="submit" class="btn">Save credentials</button>
+        </form>
+        <div class="conn-actions">
+          <button id="connectBtn" class="btn btn-primary">Connect to Restream</button>
+          <button id="disconnectBtn" class="btn">Disconnect</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Azure Neural TTS (for the real Andrew voice)</h3>
+        <p class="hint">From the Azure portal → Speech service → Keys and Endpoint.
+          The key is stored encrypted and never leaves this app.</p>
+        <form id="azureForm">
+          <div class="field">
+            <label for="azureRegion">Region</label>
+            <input type="text" id="azureRegion" autocomplete="off" placeholder="e.g. eastus" />
+          </div>
+          <div class="field">
+            <label for="azureKey">Key</label>
+            <input type="password" id="azureKey" autocomplete="off"
+                   placeholder="(leave blank to keep existing)" />
+          </div>
+          <button type="submit" class="btn">Save Azure settings</button>
+        </form>
+        <p id="azureSaveState" role="status" class="save-state"></p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Accessible destructive-confirm dialog. Native <dialog> traps focus and
+       handles Esc; role="alertdialog" + aria-describedby make screen readers
+       announce the warning on open. Default focus is Cancel (safe). -->
+  <dialog id="confirmDialog" role="alertdialog"
+          aria-labelledby="confirmTitle" aria-describedby="confirmDesc">
+    <h2 id="confirmTitle">Delete channel?</h2>
+    <p id="confirmDesc"></p>
+    <div class="dialog-actions">
+      <button id="confirmDelete" class="btn btn-danger" type="button">Delete permanently</button>
+      <button id="confirmCancel" class="btn" type="button">Cancel</button>
+    </div>
+  </dialog>
+
+  <footer class="app-footer">
+    <p>Keyboard: <kbd>Ctrl</kbd>+<kbd>1</kbd>–<kbd>6</kbd> switch tabs · <kbd>Esc</kbd> stop speech · <kbd>?</kbd> shortcuts</p>
+  </footer>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

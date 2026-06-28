@@ -1,0 +1,282 @@
+/* RestreamA11y — accessibility-first styling.
+   Priorities: high contrast, large hit targets, unmistakable focus rings,
+   text that scales, and respect for reduced-motion. */
+
+:root {
+  --bg: #0b0f17;
+  --bg-elev: #161c28;
+  --bg-card: #1b2333;
+  --fg: #f2f5fa;
+  --fg-dim: #b8c2d4;
+  --accent: #4ea1ff;
+  --accent-strong: #1d7fff;
+  --good: #36d399;
+  --bad: #ff5d6c;
+  --focus: #ffd200;          /* high-contrast yellow focus ring */
+  --border: #2c3650;
+  --radius: 10px;
+  font-size: 18px;            /* base; everything uses rem so it scales */
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+/* --- Focus: never invisible. 3px solid + offset, on everything focusable. --- */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--accent-strong);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.8rem 1.2rem;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+}
+.app-header h1 { margin: 0; font-size: 1.4rem; }
+.conn-state {
+  margin: 0;
+  color: var(--fg-dim);
+  font-weight: 600;
+}
+.conn-state.connected { color: var(--good); }
+
+/* --- Tabs --- */
+[role="tablist"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem 0;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+}
+[role="tab"] {
+  background: transparent;
+  color: var(--fg-dim);
+  border: 2px solid transparent;
+  border-bottom: none;
+  padding: 0.55rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+[role="tab"]:hover { color: var(--fg); }
+[role="tab"][aria-selected="true"] {
+  color: var(--fg);
+  background: var(--bg);
+  border-color: var(--border);
+  border-bottom: 2px solid var(--bg);
+  margin-bottom: -1px;
+}
+.tabnum {
+  display: inline-block;
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  padding: 0 0.35rem;
+  margin-right: 0.3rem;
+}
+
+main {
+  padding: 1.2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+main:focus { outline: none; }
+
+h2 { margin-top: 0; font-size: 1.5rem; }
+h3 { font-size: 1.15rem; }
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.hint { color: var(--fg-dim); font-size: 0.95rem; }
+.big-status { font-size: 1.6rem; font-weight: 700; margin: 0.4rem 0; }
+
+/* --- Buttons --- */
+.btn {
+  background: var(--bg-elev);
+  color: var(--fg);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 1.1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;            /* comfortable target size */
+}
+.btn:hover { border-color: var(--accent); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primary {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent); border-color: var(--accent); }
+
+kbd {
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 0.35rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+}
+
+/* --- Forms --- */
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-weight: 600; margin-bottom: 0.3rem; }
+input[type="text"], input[type="password"], textarea, select {
+  width: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.7rem;
+  font-size: 1rem;
+  font-family: inherit;
+}
+input[type="range"] { width: 100%; height: 2rem; accent-color: var(--accent); }
+.inline-check { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; }
+.inline-check input { width: 1.3rem; height: 1.3rem; accent-color: var(--accent); }
+output { font-variant-numeric: tabular-nums; color: var(--accent); font-weight: 700; }
+
+/* --- Channels --- */
+.channel-list { list-style: none; padding: 0; margin: 1rem 0 0; }
+.channel-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.6rem;
+}
+.channel-name { font-weight: 600; }
+.channel-platform { color: var(--fg-dim); font-size: 0.9rem; }
+
+/* Accessible toggle switch (a real checkbox styled as a switch) */
+.switch { position: relative; display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer; }
+.switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.switch .track {
+  width: 56px; height: 30px; border-radius: 999px;
+  background: #555f78; border: 2px solid var(--border);
+  transition: background 0.15s; position: relative; flex: none;
+}
+.switch .thumb {
+  position: absolute; top: 2px; left: 2px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; transition: left 0.15s;
+}
+.switch input:checked + .track { background: var(--good); }
+.switch input:checked + .track .thumb { left: 28px; }
+.switch input:focus-visible + .track { outline: 3px solid var(--focus); outline-offset: 2px; }
+.switch .state-text { font-weight: 700; min-width: 3ch; }
+
+/* --- Chat --- */
+.chat-controls { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-bottom: 0.8rem; }
+.chat-log {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem;
+  height: 50vh;
+  overflow-y: auto;
+}
+.chat-msg { padding: 0.4rem 0.2rem; border-bottom: 1px solid var(--border); }
+.chat-msg .author { font-weight: 700; color: var(--accent); }
+.chat-msg .platform { color: var(--fg-dim); font-size: 0.8rem; margin-left: 0.4rem; }
+.chat-msg .text { display: block; margin-top: 0.15rem; }
+
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.3rem 1rem; }
+.kv dt { color: var(--fg-dim); font-weight: 600; }
+.kv dd { margin: 0; word-break: break-all; }
+
+.channel-controls { display: flex; align-items: center; gap: 0.8rem; flex: none; }
+
+/* Danger buttons */
+.btn-danger { background: var(--bad); border-color: var(--bad); color: #1a0306; }
+.btn-danger:hover { background: #ff7986; border-color: #ff7986; }
+.btn-danger-outline { color: var(--bad); border-color: var(--bad); background: transparent; }
+.btn-danger-outline:hover { background: var(--bad); color: #1a0306; }
+
+/* Modal confirm dialog */
+dialog#confirmDialog {
+  background: var(--bg-card);
+  color: var(--fg);
+  border: 2px solid var(--bad);
+  border-radius: var(--radius);
+  padding: 1.4rem 1.6rem;
+  max-width: 460px;
+  width: calc(100% - 2rem);
+}
+dialog#confirmDialog::backdrop { background: rgba(0, 0, 0, 0.6); }
+dialog#confirmDialog h2 { margin-top: 0; color: var(--bad); }
+dialog#confirmDialog .dialog-actions {
+  display: flex; gap: 0.7rem; justify-content: flex-end; margin-top: 1.2rem;
+}
+
+.conn-actions { display: flex; gap: 0.6rem; margin-top: 0.8rem; }
+.save-state { font-weight: 600; min-height: 1.5rem; }
+.save-state.ok { color: var(--good); }
+.save-state.err { color: var(--bad); }
+
+.app-footer {
+  padding: 0.5rem 1.2rem;
+  color: var(--fg-dim);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+/* Respect users who don't want motion */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* Honor OS high-contrast / forced colors */
+@media (forced-colors: active) {
+  .btn, .card, input, select, textarea { border: 2px solid ButtonText; }
+  :focus-visible { outline: 3px solid Highlight; }
+}

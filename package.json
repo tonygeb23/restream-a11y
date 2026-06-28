@@ -1,0 +1,15 @@
+{
+  "name": "restream-a11y",
+  "version": "0.1.0",
+  "description": "An accessible, keyboard-first desktop GUI for Restream with neural TTS chat reading.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}

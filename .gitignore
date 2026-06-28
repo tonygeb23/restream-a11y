@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Local user data / secrets — these normally live in %APPDATA%, but never
+# commit them if a copy ever lands in the project folder.
+config.json
+tokens.enc
+*.enc
+.env
+.env.*
+
+# OS / editor cruft
+Thumbs.db
+.DS_Store
+*.log
