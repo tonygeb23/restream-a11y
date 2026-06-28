@@ -407,7 +407,7 @@ document.getElementById('testChat').addEventListener('click', () => {
   handleChatMessage(JSON.stringify({
     action: 'event',
     payload: {
-      connectionIdentifier: '4445906-youtube-test',
+      connectionIdentifier: '0-youtube-test',
       eventPayload: { author: { displayName: 'TestViewer' }, text: 'Hey, this is a test chat message!' },
     },
     timestamp: 0,
