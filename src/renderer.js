@@ -440,13 +440,22 @@ function handleChatMessage(raw) {
 }
 
 function addChatMessage(author, text, platform) {
-  const div = document.createElement('div');
-  div.className = 'chat-msg';
-  div.innerHTML =
-    `<span class="author">${escapeHtml(author)}</span>` +
-    (platform ? `<span class="platform">${escapeHtml(String(platform))}</span>` : '') +
-    `<span class="text">${escapeHtml(text)}</span>`;
-  chatLog.appendChild(div);
+  // Each message is a real <article> with a heading (sender) and a paragraph
+  // (their words). Real <h3> elements let screen-reader users jump message to
+  // message with heading navigation (e.g. NVDA's H key); the <p> is plain text.
+  const article = document.createElement('article');
+  article.className = 'chat-msg';
+
+  const heading = document.createElement('h3');
+  heading.className = 'chat-author';
+  heading.textContent = platform ? `${author} — ${platform}` : author;
+
+  const body = document.createElement('p');
+  body.className = 'chat-text';
+  body.textContent = text;            // textContent => no HTML injection
+
+  article.append(heading, body);
+  chatLog.appendChild(article);
   chatLog.scrollTop = chatLog.scrollHeight;
 
   // Trim DOM so a long stream doesn't bloat memory / the a11y tree.
